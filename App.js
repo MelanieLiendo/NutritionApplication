@@ -1,31 +1,80 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressable} from 'react-native';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [day, setDay] = useState(null)
+  const [meal, setMeal]= useState( null)
+  const [allWeek, setAllWeek] =useState(["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"])
   const [week, setWeek] = useState({
-    monday: {brea},
-    tuesday:"",
-    wednesday: "",
-    thursday: "",
-    friday: "",
-    saturday: "",
-    sunday: "",
+    monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    tuesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    wednesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    thursday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    friday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    saturday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    sunday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
   })
 
 
-  const handlePress = () => {
+  const handleBreakfast = (day) => {
+    setDay(day.days)
+    setMeal("breakfast")
     setModalVisible(true)
-    
+    console.log(day)
+    console.log(meal)
+  }
+
+  const handleLunch = (day) => {
+    setDay(day.days)
+    setMeal("lunch")
+    setModalVisible(true)
+    console.log(day)
+    console.log(meal)
+  }
+
+  const handleTeatime = (day) => {
+    setDay(day.days)
+    setMeal("teatime")
+    setModalVisible(true)
+    console.log(day)
+    console.log(meal)
+  }
+
+  const handleDinner = (day) => {
+    setDay(day.days)
+    setMeal("dinner")
+    setModalVisible(true)
+    console.log(day.days)
+    console.log(meal)
+  }
+
+  const manageMeal = (healthy)=> {
+    console.log(healthy)
+    let temp = {...week}
+    temp[day][meal] = healthy
+    setWeek(temp)
+    setModalVisible(false)
+    console.log({week})
+
+     
   }
 
 
+  useEffect(() => {
+    week.map((day)=>{
+      day.map((meal)=>{
+        if (meal == "healthy"){
+          let countHealthy = countHealthy++
+        }
+
+      })
+
+    })
 
 
 
-  
-
-  
+  },[week])
 
  
   return (
@@ -45,49 +94,33 @@ export default function App() {
             <View style= {styles.eachColumn}>
               <Text>BREAKFAST  </Text>
               <View style={styles.mealColumns}>
-              <Pressable style={[styles.button, styles.buttonOpen]}  onPress={()=> handlePress("Sunday breakfast")}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              </View>
+                {allWeek.map((days)=>(
+                  <Pressable style={ [styles.button, styles.buttonOpen]} onPress={()=> handleBreakfast({days})}></Pressable>
+                ))}
+              </View>                           
             </View>
             <View style= {styles.eachColumn}>
               <Text>LUNCH  </Text>
               <View style={styles.mealColumns}>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
+              {allWeek.map((days)=>(
+                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleLunch({days})}></Pressable>
+                ))}
               </View>
             </View>
             <View style= {styles.eachColumn}>
               <Text>TEA TIME  </Text>
-              <View style={styles.mealColumns}>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
+              <View style={styles.mealColumns}>  
+              {allWeek.map((days)=>(
+                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleTeatime({days})}></Pressable>
+                ))}
               </View>
             </View>
             <View style= {styles.eachColumn}>
               <Text>DINNER</Text>
               <View style={styles.mealColumns}>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
-              <Pressable style={[styles.button, styles.buttonOpen]} onPress={() => setModalVisible(true)}></Pressable>
+              {allWeek.map((days)=>(
+                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleDinner({days})}></Pressable>
+                ))}
               </View>
             </View>        
           </View>
@@ -114,8 +147,8 @@ export default function App() {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Pressable style = {styles.notHealthy}><Text>Healthy</Text></Pressable>
-            <Pressable style = {styles.notHealthy}><Text>Not Healthy</Text></Pressable>
+            <Pressable style = {styles.notHealthy} onPress={() => manageMeal("healthy")}><Text>Healthy</Text></Pressable>
+            <Pressable style = {styles.notHealthy} onPress={() => manageMeal("not healthy")}><Text>Not Healthy</Text></Pressable>
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}>
@@ -202,6 +235,7 @@ const styles = StyleSheet.create({
     padding: 13,
     marginBottom: 3,
     elevation: 2,
+
 
   },
   buttonOpen: {
