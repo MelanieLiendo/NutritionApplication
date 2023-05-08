@@ -1,10 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressable, AsyncStorage} from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressable} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNPickerSelect from "react-native-picker-select";
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalDates, setModalDates] = useState(false)
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
+  const [numberMeals, setNumberMeals]=useState(0)
+  const [countHealthy, setCountHealthy] =useState(0)
+  const [countUnhealthy, setCountUnhealthy]=useState(0)
+  const [monthCalendar, setMonthCalendar]=useState("")
   const [goodMeals, setGoodMeals] = useState("")
   const [badMeals, setBadMeals] = useState("")
   const [allWeek, setAllWeek] =useState(["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"])
@@ -17,6 +24,46 @@ export default function App() {
     saturday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
     sunday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
   })
+  const [oneMonth, setOneMonth] = useState({
+    firstWeek: {numberMeals: "", countHealthy: "", countUnhealthy: ""}, 
+    secondWeek: {},
+    thirdWeek: {},
+    forthWeek: {},
+}) 
+  const[months, setMonths]= useState()
+
+
+  
+ const _storeData = async (week) => {
+    try {
+      await AsyncStorage.setItem("week", JSON.stringify(week));
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+
+
+  useEffect(() =>{
+    
+ const _retrieveData = async () => {
+    try {
+
+      const data = await AsyncStorage.getItem('week');
+   
+      if (data !== null) {   
+        let dataJson= JSON.parse(data)
+        setWeek(dataJson)
+        // We have data!!
+        console.log(dataJson);
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
+  _retrieveData()
+  },[])
 
 
   const handleBreakfast = (day) => {
@@ -47,6 +94,7 @@ export default function App() {
     let temp = {...week}
     temp[day][meal] = healthy
     setWeek(temp)
+    _storeData(temp)
     setModalVisible(false)
 
      
@@ -55,40 +103,39 @@ export default function App() {
 
   useEffect(() => {
 
-    var countHealthy = 0
-    var countUnhealthy = 0
+    var countH = 0
+    var countU = 0
     
     const handleHealthy = () => {
-    for (var day in week){  // "monday"
+    for (var day in week){  
       for (var meal in week[day]){  
-        if (week[day][meal] == "healthy"){
-           countHealthy++
-        } else if (week[day][meal] == "not healthy" ){
-          countUnhealthy++
+        if (week[day][meal] === "healthy"){
+           countH++
+        } else if (week[day][meal] === "not healthy" ){
+          countU++
 
         }
 
       }
     }
-   console.log(countHealthy)
-   console.log(countUnhealthy)
+   setCountHealthy(countH)
+   setCountUnhealthy(countU)
+   setNumberMeals(countH + countU)
   }
 
   const handlePorcentajes = ( ) => {
-    var takenMeals = countHealthy + countUnhealthy
-    if (countHealthy != 0){
-      var good =  countHealthy*100/takenMeals
+    var takenMeals = countH + countU
+    if (countH != 0){
+      var good =  (countH*100)/takenMeals
     } else {
       var good =  0
-    }
-    if (countUnhealthy != 0){
-      var bad =  countUnhealthy*100/takenMeals
-    } else {
-      var bad =  0
-    }
-  
+    }  
     setGoodMeals(Math.round(good))
-    setBadMeals(Math.round(bad))
+    if (takenMeals != 0) {
+    setBadMeals(100 - Math.round(good))
+    } else {
+      setBadMeals(0)
+    }
   }
 
   
@@ -98,10 +145,11 @@ export default function App() {
 
 
   const saveWeek = () =>{
+    setModalDates(true)
 
   }
 
-  const clearWeek = ( ) =>{
+  const clearWeek = () =>{
     
     setWeek({
       monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
@@ -112,12 +160,16 @@ export default function App() {
       saturday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
       sunday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
     })
+    const temp = {...week}
+    _storeData(temp)
 
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
           <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
+
+          
           
           <View style={styles.grid}>
             <View style={styles.weekDays}>
@@ -171,6 +223,56 @@ export default function App() {
             </View>        
           </View>
 
+          <View >
+            <Modal 
+            animationType="slide"
+            transparent={true}
+            visible={modalDates}>
+              <View style={[styles.modalView, styles.centeredView]}>
+             <Text>MONTH: </Text>
+             <RNPickerSelect  
+                 onValueChange={(value) => console.log(value)}
+                 items={[
+                     { label: "January", value: "January" },
+                     { label: "February", value: "February" },
+                     { label: "March", value: "March" },
+                     { label: "April", value: "April" },
+                     { label: "May", value: "May" },
+                     { label: "June", value: "June" },
+                     { label: "July", value: "July" },
+                     { label: "August", value: "August" },
+                     { label: "September", value: "September" },
+                     { label: "October", value: "October" },
+                     { label: "November", value: "November" },
+                     { label: "December", value: "December" },
+                     
+                 ]}
+             />
+             <Text> WEEK: </Text>
+             <RNPickerSelect
+                 onValueChange={(value) => console.log(value)}
+                 items={[
+                     { label: "1", value: "1" },
+                     { label: "2", value: "2" },
+                     { label: "3", value: "3" },
+                     { label: "4", value: "4" },
+                 ]}
+             />
+             
+              <Pressable
+              style={[styles.buttonCloseModal, styles.buttonClose]}
+              onPress={() => setModalDates(!modalDates)}>
+              <Text style={styles.textStyle}>Save</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.buttonCloseModal, styles.buttonClose]}
+              onPress={() => setModalDates(!modalDates)}>
+              <Text style={styles.textStyle}>x Close</Text>
+            </Pressable>
+             </View>
+             </Modal>
+         </View>
+
          
         
 
@@ -184,7 +286,7 @@ export default function App() {
         </View>  
 
        <View style= {styles.saveOrClear}>
-            <Button title="Save week"  style={styles.saveWeek}></Button>
+            <Button title="Save week" onPress={()=>saveWeek()} style={styles.saveWeek}></Button>
             <Button title="Clear out week" onPress={()=>clearWeek()} style={styles.clearOut}></Button>
           </View>
 
@@ -201,6 +303,7 @@ export default function App() {
           <View style={styles.modalView}>
             <Pressable style = {styles.notHealthy} onPress={() => manageMeal("healthy")}><Text>Healthy</Text></Pressable>
             <Pressable style = {styles.notHealthy} onPress={() => manageMeal("not healthy")}><Text>Not Healthy</Text></Pressable>
+            <Pressable style = {styles.notHealthy} onPress={() => manageMeal("")}><Text>Return to initial value</Text></Pressable>
             <Pressable
               style={[styles.buttonCloseModal, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}>
@@ -229,6 +332,13 @@ const styles = StyleSheet.create({
     fontSize: 50,
     letterSpacing: 20,
     textAlign: 'center'
+  },
+
+  picker:{
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: 40,
+
   },
 
   weekDays: {
@@ -329,7 +439,7 @@ const styles = StyleSheet.create({
   },
 
   infoTextContainer: {
-    marginTop: 80,
+    marginTop: 20,
   },
 
   notHealthy: {
