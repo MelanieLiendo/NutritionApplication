@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressable} from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressable, AsyncStorage} from 'react-native';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
+  const [goodMeals, setGoodMeals] = useState("")
+  const [badMeals, setBadMeals] = useState("")
   const [allWeek, setAllWeek] =useState(["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"])
   const [week, setWeek] = useState({
     monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
@@ -21,62 +23,98 @@ export default function App() {
     setDay(day.days)
     setMeal("breakfast")
     setModalVisible(true)
-    console.log(day)
-    console.log(meal)
   }
 
   const handleLunch = (day) => {
     setDay(day.days)
     setMeal("lunch")
     setModalVisible(true)
-    console.log(day)
-    console.log(meal)
   }
 
   const handleTeatime = (day) => {
     setDay(day.days)
     setMeal("teatime")
     setModalVisible(true)
-    console.log(day)
-    console.log(meal)
   }
 
   const handleDinner = (day) => {
     setDay(day.days)
     setMeal("dinner")
     setModalVisible(true)
-    console.log(day.days)
-    console.log(meal)
   }
 
   const manageMeal = (healthy)=> {
-    console.log(healthy)
     let temp = {...week}
     temp[day][meal] = healthy
     setWeek(temp)
     setModalVisible(false)
-    console.log({week})
 
      
   }
 
 
   useEffect(() => {
-    week.map((day)=>{
-      day.map((meal)=>{
-        if (meal == "healthy"){
-          let countHealthy = countHealthy++
+
+    var countHealthy = 0
+    var countUnhealthy = 0
+    
+    const handleHealthy = () => {
+    for (var day in week){  // "monday"
+      for (var meal in week[day]){  
+        if (week[day][meal] == "healthy"){
+           countHealthy++
+        } else if (week[day][meal] == "not healthy" ){
+          countUnhealthy++
+
         }
 
-      })
+      }
+    }
+   console.log(countHealthy)
+   console.log(countUnhealthy)
+  }
 
-    })
+  const handlePorcentajes = ( ) => {
+    var takenMeals = countHealthy + countUnhealthy
+    if (countHealthy != 0){
+      var good =  countHealthy*100/takenMeals
+    } else {
+      var good =  0
+    }
+    if (countUnhealthy != 0){
+      var bad =  countUnhealthy*100/takenMeals
+    } else {
+      var bad =  0
+    }
+  
+    setGoodMeals(Math.round(good))
+    setBadMeals(Math.round(bad))
+  }
 
-
-
+  
+  handleHealthy()
+  handlePorcentajes()
   },[week])
 
- 
+
+  const saveWeek = () =>{
+
+  }
+
+  const clearWeek = ( ) =>{
+    
+    setWeek({
+      monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      tuesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      wednesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      thursday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      friday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      saturday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+      sunday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
+    })
+
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
           <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
@@ -95,7 +133,9 @@ export default function App() {
               <Text>BREAKFAST  </Text>
               <View style={styles.mealColumns}>
                 {allWeek.map((days)=>(
-                  <Pressable style={ [styles.button, styles.buttonOpen]} onPress={()=> handleBreakfast({days})}></Pressable>
+                  <Pressable style = {week[days]["breakfast"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+                  week[days]["breakfast"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
+                  [styles.button, styles.buttonOpen] }  onPress={()=> handleBreakfast({days})}></Pressable>
                 ))}
               </View>                           
             </View>
@@ -103,7 +143,9 @@ export default function App() {
               <Text>LUNCH  </Text>
               <View style={styles.mealColumns}>
               {allWeek.map((days)=>(
-                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleLunch({days})}></Pressable>
+                  <Pressable style = {week[days]["lunch"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+                  week[days]["lunch"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
+                  [styles.button, styles.buttonOpen] } onPress={()=> handleLunch({days})}></Pressable>
                 ))}
               </View>
             </View>
@@ -111,7 +153,9 @@ export default function App() {
               <Text>TEA TIME  </Text>
               <View style={styles.mealColumns}>  
               {allWeek.map((days)=>(
-                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleTeatime({days})}></Pressable>
+                  <Pressable style = {week[days]["teatime"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+                  week[days]["teatime"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
+                  [styles.button, styles.buttonOpen] } onPress={()=> handleTeatime({days})}></Pressable>
                 ))}
               </View>
             </View>
@@ -119,22 +163,30 @@ export default function App() {
               <Text>DINNER</Text>
               <View style={styles.mealColumns}>
               {allWeek.map((days)=>(
-                  <Pressable style={[styles.button, styles.buttonOpen]} onPress={()=> handleDinner({days})}></Pressable>
+                  <Pressable style = {week[days]["dinner"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+                  week[days]["dinner"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
+                  [styles.button, styles.buttonOpen] } onPress={()=> handleDinner({days})}></Pressable>
                 ))}
               </View>
             </View>        
           </View>
 
+         
+        
 
         <View style= {styles.infoTextContainer}>
-          <Text style= {styles.infoText1}>You have been choosing healty options X% of the meals this week</Text>
-          <Text style= {styles.infoText1}>x% of the meals were not that healthy</Text>
+          <Text style= {styles.infoText1}>You have been choosing healty options {goodMeals}% of the meals you had this week</Text>
+          <Text style= {styles.infoText1}> {badMeals}% of the meals were not that healthy</Text>
           <View style={styles.buttonMonthYear}>
             <Button title="+ MONTH STADS." style={styles.buttonMonthYear}></Button>
             <Button title="+ YEAR STADS."></Button>
           </View>
-        </View>    
+        </View>  
 
+       <View style= {styles.saveOrClear}>
+            <Button title="Save week"  style={styles.saveWeek}></Button>
+            <Button title="Clear out week" onPress={()=>clearWeek()} style={styles.clearOut}></Button>
+          </View>
 
           
     <View style={styles.centeredView}>
@@ -150,7 +202,7 @@ export default function App() {
             <Pressable style = {styles.notHealthy} onPress={() => manageMeal("healthy")}><Text>Healthy</Text></Pressable>
             <Pressable style = {styles.notHealthy} onPress={() => manageMeal("not healthy")}><Text>Not Healthy</Text></Pressable>
             <Pressable
-              style={[styles.button, styles.buttonClose]}
+              style={[styles.buttonCloseModal, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}>
               <Text style={styles.textStyle}>x Close</Text>
             </Pressable>
@@ -229,28 +281,48 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+
   button: {
     borderRadius: 100,
-    width: 20,
+    width: 40,
     padding: 13,
     marginBottom: 3,
     elevation: 2,
-
-
   },
+
   buttonOpen: {
     backgroundColor: '#111111',
   },
+
+  buttonOpenGood: {
+    backgroundColor: '#CAD473',
+  },
+
+  buttonOpenBad: {
+    backgroundColor: '#D42500',
+  },
+
   buttonClose: {
     backgroundColor: '#999999',
-    width: 30,
+    width: 80,
     
   },
+  
   textStyle: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
   },
+
+  buttonCloseModal: {
+    borderRadius: 100,
+    width: 100,
+    padding: 13,
+    marginBottom: 3,
+    elevation: 2,
+  },
+
+
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
@@ -264,13 +336,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 3,
-    elevation: 3,
-    flex: 0.5,
-    flexDirection: 'column',
+    marginBottom: 10,
   },
 
- 
 
   infoText1: {
     marginBottom: 20,
@@ -281,8 +349,13 @@ const styles = StyleSheet.create({
   buttonMonthYear:{
     flexDirection: 'row',
     justifyContent: 'center',
-  }
+  },
 
+  saveOrClear: {
+    display: 'flex',
+    flexDirection: 'row',
+
+  }
 
   
 });
