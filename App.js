@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal, Pressable} from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, Modal, Alert, Pressable} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -8,13 +9,18 @@ export default function App() {
   const [modalSave, setModalSave] = useState(false);
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
-  const [input, setInput] = useState("")
+  const [pickerDay, setPickerDay] = useState()
+  const [pickerMonth, setPickerMonth] = useState()
   const [countHealthy, setCountHealthy] = useState(0)
   const [countUnhealthy, setCountUnhealthy]= useState(0)
   const [goodMeals, setGoodMeals] = useState("")
   const [badMeals, setBadMeals] = useState("")
+  const [reducedMeals, setReducedMeals] =useState(0)
+  const [reducedHealthy, setReducedHealthy] = useState(0)
   const [arrWeeks, setArrWeeks] =useState([])
   const allWeek =["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+  const days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "25", "26", "27", "28", "29", "30", "31"]
+  const months = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
   const [week, setWeek] = useState({
     monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
     tuesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
@@ -42,6 +48,24 @@ export default function App() {
     } catch (error) {
       // Error saving data
     }
+  }
+
+  const _reducedMeal = async (reducedMeals) => {
+    try {
+      await AsyncStorage.setItem("reducedMeal", JSON.stringify(reducedMeals));
+    } catch (error) {
+      // Error saving data
+    }
+
+  }
+
+  const _reducedHealthy = async (reducedHealthy) => {
+    try {
+      await AsyncStorage.setItem("reducedHealthy", JSON.stringify(reducedHealthy));
+    } catch (error) {
+      // Error saving data
+    }
+
   }
 
 
@@ -81,6 +105,42 @@ export default function App() {
 
   }
 
+  const _retrieveReducedMeal = async () => {
+    try {
+
+      const data = await AsyncStorage.getItem('reducedMeal');
+   
+      if (data !== null) {   
+        let dataJson= JSON.parse(data)
+        setReducedMeals(dataJson)
+        // We have data!!
+        console.log(dataJson);
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+
+  }
+
+  const _retrieveReducedHealthy = async () => {
+    try {
+
+      const data = await AsyncStorage.getItem('reducedHealthy');
+   
+      if (data !== null) {   
+        let dataJson= JSON.parse(data)
+        setReducedHealthy(dataJson)
+        // We have data!!
+        console.log(dataJson);
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+
+  }
+
+  _retrieveReducedHealthy()
+  _retrieveReducedMeal()
   _retrieveData()
   _retrieveHistorical()
   },[])
@@ -167,19 +227,38 @@ export default function App() {
 
   const saveKey = () => {
     let temp = [...arrWeeks]
-    temp.push({"dates": input,"healthy": countHealthy, "unhealthy": countUnhealthy, "takenMeals": countHealthy+countUnhealthy})
+    temp.push({"dates": `${pickerDay}/${pickerMonth}`,"healthy": countHealthy, "unhealthy": countUnhealthy, "takenMeals": countHealthy+countUnhealthy})
     console.log(temp)
     setArrWeeks(temp)
     setCountHealthy(0)
     setCountUnhealthy(0)
     clearWeek()
     _storeHistorical(temp)
-
-
+    let reducedMeals = arrWeeks.reduce((takenMeals,acc)=>(takenMeals +(acc.takenMeals)),0)
+    let reducedHealthy = arrWeeks.reduce((totalHealthy,acc)=>(totalHealthy +(acc.healthy)),0)
+    setReducedHealthy(reducedHealthy)
+    setReducedMeals(reducedMeals)
+    _reducedMeal(reducedMeals)
+    _reducedHealthy(reducedHealthy)
   }
+
+
+  const alert =() => {
+    Alert.alert(
+      'Clear out week',
+      'Currents week information will reset',
+      [
+      {text: 'OK', onPress: () => clearWeek()},
+      {text: 'Cancel'},      
+      ],
+      { cancelable: false }
+      )
+  }
+
   
 
   const clearWeek = async() =>{
+    
       try {
           await AsyncStorage.removeItem('week');
           setWeek({
@@ -213,13 +292,12 @@ export default function App() {
   
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={(modalVisible ||  modalSave || modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
           <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
 
           
           
-          <View style={styles.grid}>
-            
+          <View style={styles.grid}>            
             <View style={styles.weekDays}>
               <Text style={styles.weekDays}>{'\n'}{'\n'}{'\n'}{'\n'}Sunday </Text>
               <Text style={styles.weekDays}>{'\n'}{'\n'}Monday </Text>
@@ -229,8 +307,8 @@ export default function App() {
               <Text style={styles.weekDays}>{'\n'}{'\n'}Friday </Text>
               <Text style={styles.weekDays}>{'\n'}{'\n'}Saturday</Text>   
            </View> 
-            <View style= {styles.eachColumn}>
-              <Text>BREAKFAST  </Text>
+           <View style= {styles.eachColumn}>
+             <Text>BREAKFAST  </Text>
               <View style={styles.mealColumns}>
                 {allWeek.map((days)=>(
                   <Pressable style = {week[days]["breakfast"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
@@ -273,18 +351,16 @@ export default function App() {
           
 
 
-        <View style= {styles.infoTextContainer}>
-          <Text style= {styles.infoText1}>Healthy Meals: {goodMeals}% </Text>
-          <Text style= {styles.infoText1}>Unhealthy Meals:{badMeals}% </Text>
+      <View style= {styles.infoTextContainer}>
+        <Text style= {styles.infoText1}>Healthy Meals: {goodMeals}% </Text>
+        <Text style= {styles.infoText1}>Unhealthy Meals:{badMeals}% </Text>
+      </View>  
 
-          
-        </View>  
-
-       <View style= {styles.saveOrClear}>
-          <Button title="Clear out week" onPress={()=>clearWeek()} style={styles.clearOut}></Button>
-          <Button title="Save Week" onPress={()=>saveWeek()} style={styles.clearOut}></Button>
-          <Button title="Historic weeks" onPress={()=>historic()} style={styles.clearOut}></Button>
-          </View>
+      <View style= {styles.saveOrClear}>
+        <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear out week</Text></Pressable>       
+        <Pressable style = {styles.clearOut} onPress={() => saveWeek()}><Text>Save Week</Text></Pressable>       
+        <Pressable style = {styles.clearOut} onPress={() => historic()}><Text>Historic weeks</Text></Pressable>
+      </View>
 
           
     <View style={styles.centeredView}>
@@ -322,23 +398,28 @@ export default function App() {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalMap}>
-            
+            <ScrollView>
             {arrWeeks.map((week, index) =>(
+              <View style={styles.initialDate}>
+                <Text >Initial date: {week.dates}</Text>
               <View style={styles.mapWeeks}>
-                <View style={styles.mapWeeksInfo}>
-              <Text>Dates:{week.dates}</Text>
-              <Text>Healthy meals:  {week.healthy}  ({Math.round(week.healthy*100/(week.takenMeals))}%)</Text>
-              <Text>Unhealthy meals:  {week.unhealthy}  ({Math.round(week.unhealthy*100/(week.takenMeals))}%)</Text>
+                <View style={styles.mapWeeksInfo}>              
+              <Text>Healthy meals:  {week.healthy}  ({week.takenMeals != 0 ? Math.round(week.healthy*100/(week.takenMeals)): 0}%)</Text>
+              <Text>Unhealthy meals:  {week.unhealthy}  ({week.takenMeals != 0 ? Math.round(week.unhealthy*100/(week.takenMeals)): 0}%)</Text>
               <Text>Taken meals:  {week.unhealthy + week.healthy} </Text>
                 </View>
               <Pressable style={styles.deleteWeekButton} onPress={()=>handleDeleteWeek(index)}>
                 <Text style= {styles.deleteWeekText}>Delete Week</Text>
                 </Pressable>
               </View>
+              </View>
             ) )}
+            </ScrollView>
 
-            <Text>Healthy meals:{((arrWeeks.reduce((totalHealthy,acc)=>(totalHealthy +(acc.healthy)),0))*100/( arrWeeks.reduce((totalMeal,acc)=>(totalMeal +(acc.totalMeals)),0)))}%</Text>
-
+              <View style={styles.totalsMaped}>
+            <Text>Healthy meals: {reducedMeals != 0 ? Math.round((reducedHealthy*100/reducedMeals)) : 0}%</Text>
+            <Text>Unhealthy meals: {reducedMeals != 0 ? Math.round(((reducedMeals - reducedHealthy)*100/reducedMeals)) : 0}%</Text>
+              </View>
             
             
             <Pressable
@@ -361,8 +442,24 @@ export default function App() {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalSave}>
-            <Text>Dates:</Text>
-          <TextInput onChangeText={setInput} placeholder='write days'/>
+            <Text>Select Day:</Text>
+            <Picker   
+            selectedValue={pickerDay}         
+      itemStyle={{color:'black',width:200}}
+      onValueChange={ (itemValue, itemIndex) => setPickerDay(itemValue)}>
+        {days.map((day)=>(
+          <Picker.Item label={day} value={day} />
+        ))}
+      </Picker>
+      <Text>Select Month:</Text>
+      <Picker
+      selectedValue={pickerMonth} 
+      itemStyle={{color:'black',width:200}}
+      onValueChange={ (itemValue, itemIndex) => setPickerMonth(itemValue) }>
+        {months.map((month)=>(
+          <Picker.Item label={month} value={month} />
+        ))}
+      </Picker>
           <View style={styles.modalButtons}>
           <Pressable
               style={[styles.buttonCloseModal, styles.buttonClose]}
@@ -391,6 +488,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     //justifyContent: 'center',
+  },
+
+  safeAreaShadow: {
+    flex: 1,
+    alignItems: 'center',
+    opacity: 0.1,
   },
 
   title: {
@@ -444,7 +547,7 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    backgroundColor: '#E6E3E3',
+    backgroundColor: 'white',
     borderRadius: 20,
     alignItems: 'center',
     shadowColor: '#000',
@@ -466,15 +569,22 @@ const styles = StyleSheet.create({
   },
 
   buttonOpen: {
-    backgroundColor: '#111111',
+    backgroundColor: '#EEEEEE',
+    borderColor: '#EEEEEE',
+    borderWidth: 1,
+
   },
 
   buttonOpenGood: {
     backgroundColor: '#CAD473',
+    borderColor: '#CAD473',
+    borderWidth: 1,
   },
 
   buttonOpenBad: {
     backgroundColor: '#D42500',
+    borderColor: '#D42500',
+    borderWidth: 1,
   },
 
   buttonClose: {
@@ -500,7 +610,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     width: 100,
     padding: 13,
-    marginBottom: 3,
+    marginBottom: 0,
     elevation: 2,
   },
 
@@ -528,6 +638,14 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     marginTop: 40,
+    gap: 10,
+
+  },
+
+  clearOut: {
+    backgroundColor: '#DADADA',
+    padding: 10,
+    borderRadius: 20,
 
   },
 
@@ -535,11 +653,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     borderColor: 'black',
-    borderWidth: '1px',
-    marginBottom: 10,
+    borderBottomWidth: 1,
     gap: 40,
     padding: 15,
-    borderRadius: 100,
 
   },
 
@@ -558,10 +674,10 @@ const styles = StyleSheet.create({
   modalSave: {
     backgroundColor: '#EE81F0',
     borderRadius: 20,
-    padding: 40,
+    padding: 30,
     alignItems: 'center',
     gap: 20,
-    shadowOpacity: 0.25,
+    shadowOpacity: 70,
     shadowRadius: 6,
     elevation: 5,
 
@@ -570,10 +686,10 @@ const styles = StyleSheet.create({
 
   modalVisibleButton: {
     display: 'flex',
-    flexDirection: 'row',
+    padding: 40,
     gap: 10,
-    marginBottom: 60,
-    marginTop: 100,
+    marginBottom: 10,
+    marginTop: 30,
   },
 
   modalVisibleButton1: {
@@ -591,36 +707,50 @@ const styles = StyleSheet.create({
   },
 
   modalVisibleButton3: {
-    backgroundColor: 'white',
+    backgroundColor: '#dadada',
     borderRadius: 20,
     padding:15,
 
   },
 
   modalMap: {
-    backgroundColor: '#F7F43C',
+    backgroundColor: '#EE81F0',
     borderRadius: 20,
     padding: 10,
     alignItems: 'center',
     gap: 20,
-    shadowOpacity: 0.25,
+    shadowOpacity: 70,
     shadowRadius: 6,
     elevation: 5,
-    maxHeight: 1000,
+    maxHeight: 500,
 
   },
 
   deleteWeekButton : {
-    backgroundColor: 'black',
+    backgroundColor: '#EE81F0',
     elevation: 2,
     justifyContent: 'center',
     paddingLeft:3,
     paddingRight: 3,
-    borderRadius: 100,
+    borderRadius: 30,
+    borderColor: 'black',
   },
 
   deleteWeekText: {
-    color: 'white',
+    color: 'black',
+  },
+
+  totalsMaped: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  initialDate: {
+    marginTop: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 
  
