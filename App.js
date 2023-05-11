@@ -2,11 +2,11 @@ import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, Modal, Alert, Pressable} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import SaveWeek from './SaveWeek';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalHistoric, setModalHistoric] = useState(false);  
-  const [modalSave, setModalSave] = useState(false);
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
   const [messageSaveWeek, setMessageSaveWeek] = useState("")
@@ -20,8 +20,6 @@ export default function App() {
   const [reducedHealthy, setReducedHealthy] = useState(0)
   const [arrWeeks, setArrWeeks] =useState([])
   const allWeek =["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-  const days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "25", "26", "27", "28", "29", "30", "31"]
-  const months = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
   const [week, setWeek] = useState({
     monday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
     tuesday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
@@ -222,31 +220,6 @@ export default function App() {
   },[week])
 
 
-  const saveWeek = () => {
-    setModalSave(true)
-  }
-
-  const saveKey = () => {
-    let temp = [...arrWeeks]
-    temp.push({"dates": `${pickerDay}/${pickerMonth}`,"healthy": countHealthy, "unhealthy": countUnhealthy, "takenMeals": countHealthy+countUnhealthy})
-    setArrWeeks(temp)
-    setCountHealthy(0)
-    setCountUnhealthy(0)
-    setMessageSaveWeek("Your week has been saved, check it out on historic weeks!")
-    setTimeout(() => {
-      setMessageSaveWeek("");
-    }, 3000);
-    clearWeek()
-    _storeHistorical(temp)
-    let reducedMeals = arrWeeks.reduce((takenMeals,acc)=>(takenMeals +(acc.takenMeals)),0)
-    let reducedHealthy = arrWeeks.reduce((totalHealthy,acc)=>(totalHealthy +(acc.healthy)),0)
-    setReducedHealthy(reducedHealthy)
-    setReducedMeals(reducedMeals)
-    _reducedMeal(reducedMeals)
-    _reducedHealthy(reducedHealthy)
-    setPickerDay(1)
-    setPickerMonth(1)
-  }
 
 
   const alert =() => {
@@ -312,7 +285,7 @@ export default function App() {
   
 
   return (
-    <SafeAreaView style={(modalVisible ||  modalSave || modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
+    <SafeAreaView style={(modalVisible ||  modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
           <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
 
           
@@ -378,8 +351,8 @@ export default function App() {
       </View>  
 
       <View style= {styles.saveOrClear}>
-        <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear out week</Text></Pressable>       
-        <Pressable style = {styles.clearOut} onPress={() => saveWeek()}><Text>Save Week</Text></Pressable>       
+        <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear out week</Text></Pressable>              
+        <SaveWeek pickerDay = {pickerDay} setPickerDay= {setPickerDay} pickerMonth= {pickerMonth} setPickerMonth= {setPickerMonth} setMessageSaveWeek= {setMessageSaveWeek} arrWeeks={arrWeeks} setArrWeeks={setArrWeeks} countHealthy={countHealthy} countUnhealthy={countUnhealthy} setCountHealthy={setCountHealthy} setCountUnhealthy={setCountUnhealthy} clearWeek={clearWeek} _storeHistorical={_storeHistorical} _reducedMeal={_reducedMeal} _reducedHealthy={_reducedHealthy}/>
         <Pressable style = {styles.clearOut} onPress={() => historic()}><Text>Historic weeks</Text></Pressable>
       </View>
 
@@ -453,56 +426,6 @@ export default function App() {
       </Modal>
     </View>
 
-    <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalSave}
-        onRequestClose={() => {
-          setModalSave(!modalSave);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalSave}>
-            <View style={styles.pickers}>
-              <View style={styles.pickersDayWrapper}>
-                <Text>Select Day:</Text>
-                <Picker   
-                  selectedValue={pickerDay}         
-                  itemStyle={{color:'black',width:100}}
-                  onValueChange={ (itemValue, itemIndex) => setPickerDay(itemValue)}>
-                  {days.map((day)=>(
-                  <Picker.Item label={day} value={day} />
-                  ))}
-               </Picker>
-              </View>
-              <View style={styles.pickersDayWrapper}>
-                <Text>Select Month:</Text>
-                <Picker
-                  selectedValue={pickerMonth} 
-                  itemStyle={{color:'black',width:100}}
-                  onValueChange={ (itemValue, itemIndex) => setPickerMonth(itemValue) }>
-                  {months.map((month)=>(
-                    <Picker.Item label={month} value={month} />
-                  ))}
-              </Picker>
-              </View>
-            </View>
-          <View style={styles.modalButtons}>
-            <Pressable
-              style={[styles.buttonCloseModal, styles.buttonClose]}
-              onPress={() => [setModalSave(!modalSave), saveKey()]}>
-              <Text style={styles.textStyleModalSave}>Save</Text>
-            </Pressable>       
-            <Pressable
-              style={[styles.buttonCloseModal, styles.buttonClose]}
-              onPress={() => [setModalSave(!modalSave), setPickerDay(1), setPickerMonth(1)]}>
-              <Text style={styles.textStyleModalSave}>x Close</Text>
-            </Pressable>
-          </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
   
  
     </SafeAreaView>
@@ -697,18 +620,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   }, 
   
-  modalSave: {
-    backgroundColor: '#EE81F0',
-    borderRadius: 20,
-    padding: 30,
-    alignItems: 'center',
-    gap: 20,
-    shadowOpacity: 70,
-    shadowRadius: 6,
-    elevation: 5,
-
-
-  },
+ 
 
   modalVisibleButton: {
     display: 'flex',
