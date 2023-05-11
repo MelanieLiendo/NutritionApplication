@@ -255,8 +255,8 @@ export default function App() {
            <View style= {styles.eachColumn}>
              <Text>BREAKFAST  </Text>
               <View style={styles.mealColumns}>
-                {allWeek.map((days)=>(
-                  <Pressable style = {week[days]["breakfast"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+                {allWeek.map((days, index)=>(
+                  <Pressable key={index} style = {week[days]["breakfast"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
                   week[days]["breakfast"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
                   [styles.button, styles.buttonOpen] }  onPress={()=> handleColor({days}, "breakfast")}></Pressable>
                 ))}
@@ -265,8 +265,8 @@ export default function App() {
             <View style= {styles.eachColumn}>
               <Text>LUNCH  </Text>
               <View style={styles.mealColumns}>
-              {allWeek.map((days)=>(
-                  <Pressable   style = {week[days]["lunch"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+              {allWeek.map((days, index)=>(
+                  <Pressable  key={index} style = {week[days]["lunch"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
                   week[days]["lunch"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
                   [styles.button, styles.buttonOpen] } onPress={()=> handleColor({days}, "lunch")}></Pressable>
                 ))}
@@ -275,8 +275,8 @@ export default function App() {
             <View style= {styles.eachColumn}>
               <Text>TEA TIME  </Text>
               <View style={styles.mealColumns}>  
-              {allWeek.map((days)=>(
-                  <Pressable style = {week[days]["teatime"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+              {allWeek.map((days, index)=>(
+                  <Pressable key={index} style = {week[days]["teatime"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
                   week[days]["teatime"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
                   [styles.button, styles.buttonOpen] } onPress={()=> handleColor({days}, "teatime")}></Pressable>
                 ))}
@@ -285,8 +285,8 @@ export default function App() {
             <View style= {styles.eachColumn}>
               <Text>DINNER</Text>
               <View style={styles.mealColumns}>
-              {allWeek.map((days)=>(
-                  <Pressable style = {week[days]["dinner"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
+              {allWeek.map((days, index)=>(
+                  <Pressable key={index} style = {week[days]["dinner"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
                   week[days]["dinner"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
                   [styles.button, styles.buttonOpen] } onPress={()=> handleColor({days}, "dinner")}></Pressable>
                 ))}
@@ -346,7 +346,7 @@ export default function App() {
           <View style={styles.modalMap}>
             <ScrollView>
             {arrWeeks.map((week, index) =>(
-              <View style={styles.initialDate}>
+              <View style={styles.initialDate} key={index}>
                 <Text style={styles.importantText}>Week: {week.dates}</Text>
               <View style={styles.mapWeeks}>
                 <View style={styles.mapWeeksInfo}>              

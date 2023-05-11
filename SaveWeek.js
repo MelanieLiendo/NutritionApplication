@@ -51,8 +51,8 @@ function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPi
                   selectedValue={pickerDay}         
                   itemStyle={{color:'black',width:100}}
                   onValueChange={ (itemValue, itemIndex) => setPickerDay(itemValue)}>
-                  {days.map((day)=>(
-                  <Picker.Item label={day} value={day} />
+                  {days.map((day, index)=>(
+                  <Picker.Item key= {index} label={day} value={day} />
                   ))}
                </Picker>
               </View>
@@ -62,8 +62,8 @@ function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPi
                   selectedValue={pickerMonth} 
                   itemStyle={{color:'black',width:100}}
                   onValueChange={ (itemValue, itemIndex) => setPickerMonth(itemValue) }>
-                  {months.map((month)=>(
-                    <Picker.Item label={month} value={month} />
+                  {months.map((month, index)=>(
+                    <Picker.Item key={index} label={month} value={month} />
                   ))}
               </Picker>
               </View>
