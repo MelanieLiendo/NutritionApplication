@@ -46,7 +46,7 @@ function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPi
           <View style={styles.modalSave}>
             <View style={styles.pickers}>
               <View style={styles.pickersDayWrapper}>
-                <Text>Select Day:</Text>
+                <Text>Select start day:</Text>
                 <Picker   
                   selectedValue={pickerDay}         
                   itemStyle={{color:'black',width:100}}

@@ -238,7 +238,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={(modalVisible || modalSaveOpen || modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
-          <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
+          <Text style={styles.title}>80/20 WEEK TRACKER{'\n'}</Text>
 
           
           
@@ -325,7 +325,7 @@ export default function App() {
             <Pressable style = {styles.modalVisibleButton2} onPress={() => manageMeal("not healthy")}><Text>Not Healthy</Text></Pressable>
             </View>
             <Pressable
-              style={[styles.buttonCloseModal, styles.buttonClose]}
+              style={[styles.buttonCloseModalColors, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}>
               <Text style={styles.textStyle}>x Close</Text>
             </Pressable>
@@ -347,12 +347,12 @@ export default function App() {
             <ScrollView>
             {arrWeeks.map((week, index) =>(
               <View style={styles.initialDate}>
-                <Text style={styles.importantText}>Week starting: {week.dates}</Text>
+                <Text style={styles.importantText}>Week: {week.dates}</Text>
               <View style={styles.mapWeeks}>
                 <View style={styles.mapWeeksInfo}>              
-              <Text>Healthy meals:  {week.healthy}  ({week.takenMeals != 0 ? Math.round(week.healthy*100/(week.takenMeals)): 0}%)</Text>
-              <Text>Unhealthy meals:  {week.unhealthy}  ({week.takenMeals != 0 ? Math.round(week.unhealthy*100/(week.takenMeals)): 0}%)</Text>
-              <Text>Taken meals:  {week.unhealthy + week.healthy} </Text>
+              <Text>Healthy meals:  {week.healthy} <Text style={styles.green}> ({week.takenMeals != 0 ? Math.round(week.healthy*100/(week.takenMeals)): 0}%)</Text></Text>
+              <Text>Unhealthy meals:  {week.unhealthy} <Text style={styles.red}>({week.takenMeals != 0 ? Math.round(week.unhealthy*100/(week.takenMeals)): 0}%)</Text> </Text>
+              <Text>Total meals:  {week.unhealthy + week.healthy} </Text>
                 </View>
               <Pressable style={styles.deleteWeekButton} onPress={()=>alertHistoric(index)}>
                 <Text style= {styles.deleteWeekText}>Delete Week</Text>
@@ -395,6 +395,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     opacity: 0.1,
+  },
+
+  green: {
+    color: 'green'
+  },
+
+  red: {
+    color: 'red'
   },
 
   title: {
@@ -509,6 +517,15 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
+  buttonCloseModalColors: {
+    borderRadius: 100,
+    width: 100,
+    padding: 13,
+    marginBottom: 20,
+    elevation: 2,
+
+  },
+
 
   modalText: {
     marginBottom: 15,
@@ -572,6 +589,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CAD473',
     borderRadius: 20,
     padding: 15,
+    alignItems: 'center'
 
   },
 
@@ -579,6 +597,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D42500',
     borderRadius: 20,
     padding: 15,
+    alignItems: 'center'
 
   },
 
@@ -586,6 +605,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dadada',
     borderRadius: 20,
     padding:15,
+    alignItems: 'center'
 
   },
 
