@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, Modal, Alert, Pressable} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
 import SaveWeek from './SaveWeek';
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalHistoric, setModalHistoric] = useState(false);  
+  const [modalHistoric, setModalHistoric] = useState(false);
+  const [modalSaveOpen, setModalSaveOpen] = useState(false);  
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
   const [messageSaveWeek, setMessageSaveWeek] = useState("")
@@ -30,7 +30,6 @@ export default function App() {
     sunday: {breakfast: "", lunch: "", teatime: "", dinner:"" },
   })
 
- 
 
   
  const _storeData = async (week) => {
@@ -48,26 +47,6 @@ export default function App() {
       // Error saving data
     }
   }
-
-  const _reducedMeal = async (reducedMeals) => {
-    try {
-      await AsyncStorage.setItem("reducedMeal", JSON.stringify(reducedMeals));
-    } catch (error) {
-      // Error saving data
-    }
-
-  }
-
-  const _reducedHealthy = async (reducedHealthy) => {
-    try {
-      await AsyncStorage.setItem("reducedHealthy", JSON.stringify(reducedHealthy));
-    } catch (error) {
-      // Error saving data
-    }
-
-  }
-
-
 
   useEffect(() =>{
     
@@ -104,42 +83,6 @@ export default function App() {
 
   }
 
-  const _retrieveReducedMeal = async () => {
-    try {
-
-      const data = await AsyncStorage.getItem('reducedMeal');
-   
-      if (data !== null) {   
-        let dataJson= JSON.parse(data)
-        setReducedMeals(dataJson)
-        // We have data!!
-        console.log(dataJson);
-      }
-    } catch (error) {
-      // Error retrieving data
-    }
-
-  }
-
-  const _retrieveReducedHealthy = async () => {
-    try {
-
-      const data = await AsyncStorage.getItem('reducedHealthy');
-   
-      if (data !== null) {   
-        let dataJson= JSON.parse(data)
-        setReducedHealthy(dataJson)
-        // We have data!!
-        console.log(dataJson);
-      }
-    } catch (error) {
-      // Error retrieving data
-    }
-
-  }
-
-  _retrieveReducedHealthy()
-  _retrieveReducedMeal()
   _retrieveData()
   _retrieveHistorical()
   },[])
@@ -163,9 +106,7 @@ export default function App() {
       setMeal(name)
     }
 
-  }
-
- 
+  } 
 
   const manageMeal = (healthy)=> {
     let temp = {...week}
@@ -241,7 +182,7 @@ export default function App() {
       'Are you sure you want to delete this week?',
 
       [
-      {text: 'OK', onPress: () => handleDeleteWeek(index)},
+      {text: 'OK', onPress: () =>  handleDeleteWeek(index)},
       {text: 'Cancel'},      
       ],
       { cancelable: false }
@@ -279,13 +220,24 @@ export default function App() {
     temp.splice(index, 1)
     setArrWeeks(temp)
     _storeHistorical(temp)
+   
+  }
 
+  useEffect(()=>{
+    triggerReduce()
+  },[arrWeeks])
+
+  const triggerReduce = () => {
+    let reducedMeals = arrWeeks.reduce((takenMeals,acc)=>(takenMeals +(acc.takenMeals)),0)
+    let reducedHealthy = arrWeeks.reduce((totalHealthy,acc)=>(totalHealthy +(acc.healthy)),0)
+    setReducedHealthy(reducedHealthy)
+    setReducedMeals(reducedMeals)
   }
 
   
 
   return (
-    <SafeAreaView style={(modalVisible ||  modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
+    <SafeAreaView style={(modalVisible || modalSaveOpen || modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
           <Text style={styles.title}>80/20 WEEK PLANNER {'\n'}</Text>
 
           
@@ -352,7 +304,7 @@ export default function App() {
 
       <View style= {styles.saveOrClear}>
         <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear out week</Text></Pressable>              
-        <SaveWeek pickerDay = {pickerDay} setPickerDay= {setPickerDay} pickerMonth= {pickerMonth} setPickerMonth= {setPickerMonth} setMessageSaveWeek= {setMessageSaveWeek} arrWeeks={arrWeeks} setArrWeeks={setArrWeeks} countHealthy={countHealthy} countUnhealthy={countUnhealthy} setCountHealthy={setCountHealthy} setCountUnhealthy={setCountUnhealthy} clearWeek={clearWeek} _storeHistorical={_storeHistorical} _reducedMeal={_reducedMeal} _reducedHealthy={_reducedHealthy}/>
+        <SaveWeek  pickerDay = {pickerDay} setPickerDay= {setPickerDay} pickerMonth= {pickerMonth} setPickerMonth= {setPickerMonth} setMessageSaveWeek= {setMessageSaveWeek} arrWeeks={arrWeeks} setArrWeeks={setArrWeeks} countHealthy={countHealthy} countUnhealthy={countUnhealthy} setCountHealthy={setCountHealthy} setCountUnhealthy={setCountUnhealthy} clearWeek={clearWeek} _storeHistorical={_storeHistorical} setModalSaveOpen={setModalSaveOpen} setReducedHealthy={setReducedHealthy} setReducedMeals={setReducedMeals}/>
         <Pressable style = {styles.clearOut} onPress={() => historic()}><Text>Historic weeks</Text></Pressable>
       </View>
 
@@ -541,12 +493,6 @@ const styles = StyleSheet.create({
     width: 80,
     
   },
-  
-  textStyleModalSave: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
 
   textStyle: {
     color: 'white',
@@ -586,7 +532,7 @@ const styles = StyleSheet.create({
   saveOrClear: {
     display: 'flex',
     flexDirection: 'row',
-    marginTop: 40,
+    marginTop: 30,
     gap: 10,
 
   },
@@ -595,6 +541,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DADADA',
     padding: 10,
     borderRadius: 20,
+    height: 35,
 
   },
 
@@ -612,15 +559,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     gap: 3,
   },
-
-  modalButtons: {
-    gap: 10,
-    marginTop: 10,
-    display: 'flex',
-    flexDirection: 'row',
-  }, 
-  
- 
 
   modalVisibleButton: {
     display: 'flex',
@@ -692,17 +630,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  pickers: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 30,
-  },
-
-  pickersDayWrapper: {
-    display: 'flex',
-    alignItems: 'center'
   },
 
   importantText: {

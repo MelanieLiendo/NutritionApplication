@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, Modal, Alert, Pressable} from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal, Alert, Pressable} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-function SaveWeek({pickerDay, setPickerDay, pickerMonth, setPickerMonth, setMessageSaveWeek , arrWeeks, setArrWeeks, countHealthy, countUnhealthy, setCountHealthy, setCountUnhealthy, clearWeek , _storeHistorical, _reducedMeal, _reducedHealthy}) {
+function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPickerMonth, setMessageSaveWeek , arrWeeks, setArrWeeks, countHealthy, countUnhealthy, setCountHealthy, setCountUnhealthy, clearWeek , _storeHistorical, }) {
     
  const days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "25", "26", "27", "28", "29", "30", "31"]
  const months = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
@@ -16,27 +16,24 @@ function SaveWeek({pickerDay, setPickerDay, pickerMonth, setPickerMonth, setMess
     setArrWeeks(temp)
     setCountHealthy(0)
     setCountUnhealthy(0)
+    setModalSaveOpen(false)
     setMessageSaveWeek("Your week has been saved, check it out on historic weeks!")
     setTimeout(() => {
       setMessageSaveWeek("");
     }, 3000);
     clearWeek()
     _storeHistorical(temp)
-   // let reducedMeals = arrWeeks.reduce((takenMeals,acc)=>(takenMeals +(acc.takenMeals)),0)
-   // let reducedHealthy = arrWeeks.reduce((totalHealthy,acc)=>(totalHealthy +(acc.healthy)),0)
-    //setReducedHealthy(reducedHealthy)
-   // setReducedMeals(reducedMeals)
-    //_reducedMeal(reducedMeals)
-    //_reducedHealthy(reducedHealthy)
     setPickerDay(1)
-    setPickerMonth(1)
+    setPickerMonth(1)    
   }
+
+
 
 
 
   return (
     <SafeAreaView >
-    <Pressable style = {styles.clearOut} onPress={() => setModalSave(true)}><Text>Save Week</Text></Pressable>
+    <Pressable style = {styles.clearOut} onPress={() => [setModalSave(true), setModalSaveOpen(true)]}><Text>Save Week</Text></Pressable>
     <View style={styles.centeredView}>
       <Modal
         animationType="slide"
@@ -81,7 +78,7 @@ function SaveWeek({pickerDay, setPickerDay, pickerMonth, setPickerMonth, setMess
             </Pressable>       
             <Pressable
               style={[styles.buttonCloseModal, styles.buttonClose]}
-              onPress={()=> {[setModalSave(!modalSave), setPickerDay(1), setPickerMonth(1)]}}>
+              onPress={()=> {[setModalSave(!modalSave), setModalSaveOpen(false), setPickerDay(1), setPickerMonth(1)]}}>
               <Text style={styles.textStyleModalSave}>x Close</Text>
             </Pressable>
           </View>
@@ -145,6 +142,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#DADADA',
       padding: 10,
       borderRadius: 20,
+      height: 35,
     },
 
     modalButtons: {
