@@ -9,8 +9,9 @@ export default function App() {
   const [modalSave, setModalSave] = useState(false);
   const [day, setDay] = useState(null)
   const [meal, setMeal]= useState( null)
-  const [pickerDay, setPickerDay] = useState()
-  const [pickerMonth, setPickerMonth] = useState()
+  const [messageSaveWeek, setMessageSaveWeek] = useState("")
+  const [pickerDay, setPickerDay] = useState(1)
+  const [pickerMonth, setPickerMonth] = useState(1)
   const [countHealthy, setCountHealthy] = useState(0)
   const [countUnhealthy, setCountUnhealthy]= useState(0)
   const [goodMeals, setGoodMeals] = useState("")
@@ -228,10 +229,13 @@ export default function App() {
   const saveKey = () => {
     let temp = [...arrWeeks]
     temp.push({"dates": `${pickerDay}/${pickerMonth}`,"healthy": countHealthy, "unhealthy": countUnhealthy, "takenMeals": countHealthy+countUnhealthy})
-    console.log(temp)
     setArrWeeks(temp)
     setCountHealthy(0)
     setCountUnhealthy(0)
+    setMessageSaveWeek("Your week has been saved, check it out on historic weeks!")
+    setTimeout(() => {
+      setMessageSaveWeek("");
+    }, 3000);
     clearWeek()
     _storeHistorical(temp)
     let reducedMeals = arrWeeks.reduce((takenMeals,acc)=>(takenMeals +(acc.takenMeals)),0)
@@ -240,6 +244,8 @@ export default function App() {
     setReducedMeals(reducedMeals)
     _reducedMeal(reducedMeals)
     _reducedHealthy(reducedHealthy)
+    setPickerDay(1)
+    setPickerMonth(1)
   }
 
 
@@ -249,6 +255,20 @@ export default function App() {
       'Currents week information will reset',
       [
       {text: 'OK', onPress: () => clearWeek()},
+      {text: 'Cancel'},      
+      ],
+      { cancelable: false }
+      )
+  }
+
+  const alertHistoric =(index) => {
+
+    Alert.alert(
+      'Week would be deleted',
+      'Are you sure you want to delete this week?',
+
+      [
+      {text: 'OK', onPress: () => handleDeleteWeek(index)},
       {text: 'Cancel'},      
       ],
       { cancelable: false }
@@ -354,6 +374,7 @@ export default function App() {
       <View style= {styles.infoTextContainer}>
         <Text style= {styles.infoText1}>Healthy Meals: {goodMeals}% </Text>
         <Text style= {styles.infoText1}>Unhealthy Meals:{badMeals}% </Text>
+        <Text style= {styles.messageSaveWeek}>{messageSaveWeek}</Text>
       </View>  
 
       <View style= {styles.saveOrClear}>
@@ -401,14 +422,14 @@ export default function App() {
             <ScrollView>
             {arrWeeks.map((week, index) =>(
               <View style={styles.initialDate}>
-                <Text >Initial date: {week.dates}</Text>
+                <Text style={styles.importantText}>Week starting: {week.dates}</Text>
               <View style={styles.mapWeeks}>
                 <View style={styles.mapWeeksInfo}>              
               <Text>Healthy meals:  {week.healthy}  ({week.takenMeals != 0 ? Math.round(week.healthy*100/(week.takenMeals)): 0}%)</Text>
               <Text>Unhealthy meals:  {week.unhealthy}  ({week.takenMeals != 0 ? Math.round(week.unhealthy*100/(week.takenMeals)): 0}%)</Text>
               <Text>Taken meals:  {week.unhealthy + week.healthy} </Text>
                 </View>
-              <Pressable style={styles.deleteWeekButton} onPress={()=>handleDeleteWeek(index)}>
+              <Pressable style={styles.deleteWeekButton} onPress={()=>alertHistoric(index)}>
                 <Text style= {styles.deleteWeekText}>Delete Week</Text>
                 </Pressable>
               </View>
@@ -417,8 +438,8 @@ export default function App() {
             </ScrollView>
 
               <View style={styles.totalsMaped}>
-            <Text>Healthy meals: {reducedMeals != 0 ? Math.round((reducedHealthy*100/reducedMeals)) : 0}%</Text>
-            <Text>Unhealthy meals: {reducedMeals != 0 ? Math.round(((reducedMeals - reducedHealthy)*100/reducedMeals)) : 0}%</Text>
+            <Text>HEALTHY MEALS: {reducedMeals != 0 ? Math.round((reducedHealthy*100/reducedMeals)) : 0}%</Text>
+            <Text>UNHEALTHY MEALS: {reducedMeals != 0 ? Math.round(((reducedMeals - reducedHealthy)*100/reducedMeals)) : 0}%</Text>
               </View>
             
             
@@ -442,37 +463,42 @@ export default function App() {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalSave}>
-            <Text>Select Day:</Text>
-            <Picker   
-            selectedValue={pickerDay}         
-      itemStyle={{color:'black',width:200}}
-      onValueChange={ (itemValue, itemIndex) => setPickerDay(itemValue)}>
-        {days.map((day)=>(
-          <Picker.Item label={day} value={day} />
-        ))}
-      </Picker>
-      <Text>Select Month:</Text>
-      <Picker
-      selectedValue={pickerMonth} 
-      itemStyle={{color:'black',width:200}}
-      onValueChange={ (itemValue, itemIndex) => setPickerMonth(itemValue) }>
-        {months.map((month)=>(
-          <Picker.Item label={month} value={month} />
-        ))}
-      </Picker>
+            <View style={styles.pickers}>
+              <View style={styles.pickersDayWrapper}>
+                <Text>Select Day:</Text>
+                <Picker   
+                  selectedValue={pickerDay}         
+                  itemStyle={{color:'black',width:100}}
+                  onValueChange={ (itemValue, itemIndex) => setPickerDay(itemValue)}>
+                  {days.map((day)=>(
+                  <Picker.Item label={day} value={day} />
+                  ))}
+               </Picker>
+              </View>
+              <View style={styles.pickersDayWrapper}>
+                <Text>Select Month:</Text>
+                <Picker
+                  selectedValue={pickerMonth} 
+                  itemStyle={{color:'black',width:100}}
+                  onValueChange={ (itemValue, itemIndex) => setPickerMonth(itemValue) }>
+                  {months.map((month)=>(
+                    <Picker.Item label={month} value={month} />
+                  ))}
+              </Picker>
+              </View>
+            </View>
           <View style={styles.modalButtons}>
-          <Pressable
+            <Pressable
               style={[styles.buttonCloseModal, styles.buttonClose]}
               onPress={() => [setModalSave(!modalSave), saveKey()]}>
               <Text style={styles.textStyleModalSave}>Save</Text>
             </Pressable>       
-            
             <Pressable
               style={[styles.buttonCloseModal, styles.buttonClose]}
-              onPress={() => setModalSave(!modalSave)}>
+              onPress={() => [setModalSave(!modalSave), setPickerDay(1), setPickerMonth(1)]}>
               <Text style={styles.textStyleModalSave}>x Close</Text>
             </Pressable>
-            </View>
+          </View>
           </View>
         </View>
       </Modal>
@@ -738,6 +764,9 @@ const styles = StyleSheet.create({
 
   deleteWeekText: {
     color: 'black',
+    textDecorationLine: 'underline',
+    
+
   },
 
   totalsMaped: {
@@ -750,7 +779,26 @@ const styles = StyleSheet.create({
     marginTop: 10,
     display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  pickers: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 30,
+  },
+
+  pickersDayWrapper: {
+    display: 'flex',
     alignItems: 'center'
+  },
+
+  importantText: {
+    fontWeight: 700,
+  },
+
+  messageSaveWeek: {
+    color: 'green',
   }
 
  
