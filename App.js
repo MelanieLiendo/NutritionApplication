@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Modal,Pressabl
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [week, setWeek] = useState({
-    monday: {brea},
+    monday: '',
     tuesday:"",
     wednesday: "",
     thursday: "",
