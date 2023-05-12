@@ -36,7 +36,7 @@ export default function App() {
 
   title: {
     marginBottom: 10,
-    fontWeight: 200,
+    fontWeight: 100,
     fontSize: 50,
     letterSpacing: 20,
     textAlign: 'center',
@@ -58,7 +58,7 @@ export default function App() {
     flex: 0,  
     flexDirection: 'row',
     height:400,
-    height:windowHeight*.6
+    height:windowHeight>750? windowHeight*.5: windowHeight*.6
   },
 
   mealColumns: {
@@ -68,6 +68,29 @@ export default function App() {
     gap: 20,
     
   },
+
+  dayColumns: {
+    flex: 1,
+    // justifyContent: 'center',
+    marginTop: 25,
+    gap: 37,
+  },
+
+  dayColumns2: {
+    flex: 1,
+    // justifyContent: 'center',
+    marginTop: 23,
+    gap:35,
+  },
+
+  dayColumns0: {
+    flex: 1,
+    // justifyContent: 'center',
+    marginTop: 23,
+    gap:35,
+  },
+
+
 
   eachColumn:{
     alignItems: 'center',
@@ -531,23 +554,22 @@ export default function App() {
 
   return (
     <SafeAreaView style={(modalVisible || modalSaveOpen || modalHistoric) ? styles.safeAreaShadow :styles.safeArea}>
-          <Text style={styles.title}>{windowHeight>750 ? `80/20\nWeekly Tracker`:`80/20`}</Text>
+          <Text style={styles.title}>{windowHeight<750 ?`80/20`: windowHeight> 850? `80/20\nTRACKER`:`80/20\nWEEK\n TRACKER`}</Text>
 
           
           
-          <View style={styles.grid}>            
-            <View style={styles.weekDays}>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}{'\n'}Sunday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Monday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Tuesday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Wednesday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Thursday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Friday </Text>
-              <Text style={styles.weekDays}>{'\n'}{'\n'}Saturday</Text>   
-           </View> 
+          <View style={styles.grid}> 
+          <View style= {styles.eachColumn}>
+             <Text> </Text>
+              <View style={windowHeight< 750? styles.dayColumns0: windowHeight> 850? styles.dayColumns2: styles.dayColumns}>
+                {allWeek.map((days, index)=>(
+                  <Text key={index} style = {styles.weekDays}>{days.toUpperCase()}</Text>
+                ))}
+              </View>                           
+            </View>                  
            <View style= {styles.eachColumn}>
              <Text>BREAKFAST  </Text>
-              <View style={styles.mealColumns}>
+              <View style={ styles.mealColumns}>
                 {allWeek.map((days, index)=>(
                   <Pressable key={index} style = {week[days]["breakfast"] == "not healthy" ?  [styles.button, styles.buttonOpenBad] : 
                   week[days]["breakfast"] == "healthy" ? [styles.button, styles.buttonOpenGood] : 
@@ -677,297 +699,4 @@ export default function App() {
   )
 }
 
-// const styles = StyleSheet.create({
-//   safeArea: {
-//     flex: 1,
-//     height:windowHeight,
-//     alignItems: 'center',
-//     justifyContent: 'space-between',
-//   },
-
-//   safeAreaShadow: {
-//     flex: 1,
-//     alignItems: 'center',
-//     opacity: 0.1,
-//   },
-
-//   green: {
-//     color: 'green'
-//   },
-
-//   red: {
-//     color: 'red'
-//   },
-
-//   title: {
-//     marginBottom: 10,
-//     fontWeight: 200,
-//     fontSize: 50,
-//     letterSpacing: 20,
-//     textAlign: 'center',
-//     height:windowHeight*.1
-//   },
-
-//   picker:{
-//     display: 'flex',
-//     flexDirection: 'row',
-//     marginTop: 40,
-
-//   },
-
-//   weekDays: {
-//     fontWeight: 200,
-//   },
-
-//   grid: {
-//     flex: 0,  
-//     flexDirection: 'row',
-//     height:400,
-//     height:windowHeight*.6
-//   },
-
-//   mealColumns: {
-//     flex: 1,
-//     // justifyContent: 'center',
-//     marginTop: 20,
-//     gap: 20,
-    
-//   },
-
-//   eachColumn:{
-//     alignItems: 'center',
-    
-//   },
-
-//   meals: {
-//     flex: 1,
-//     flexDirection: 'row',
-
-//   },
-
-
-//   centeredView: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     // marginTop: 22,
-//   },
-
-//   modalView: {
-//     backgroundColor: 'white',
-//     borderRadius: 20,
-//     alignItems: 'center',
-//     shadowColor: '#000',
-//     shadowOffset: {
-//       width: 0,
-//       height: 2,
-//     },
-//     shadowOpacity: 0.25,
-//     shadowRadius: 4,
-//     elevation: 5,
-//   },
-
-//   button: {
-//     borderRadius: 100,
-//     width: 40,
-//     padding: 13,
-//     marginBottom: 3,
-//     elevation: 2,
-//   },
-
-//   buttonOpen: {
-//     backgroundColor: '#EEEEEE',
-//     borderColor: '#EEEEEE',
-//     borderWidth: 1,
-
-//   },
-
-//   buttonOpenGood: {
-//     backgroundColor: '#CAD473',
-//     borderColor: '#CAD473',
-//     borderWidth: 1,
-//   },
-
-//   buttonOpenBad: {
-//     backgroundColor: '#D42500',
-//     borderColor: '#D42500',
-//     borderWidth: 1,
-//   },
-
-//   buttonClose: {
-//     backgroundColor: 'black',
-//     width: 80,
-    
-//   },
-
-//   textStyle: {
-//     color: 'white',
-//     fontWeight: 'bold',
-//     textAlign: 'center',
-//   },
-
-
-//   buttonCloseModal: {
-//     borderRadius: 100,
-//     width: 100,
-//     padding: 13,
-//     marginBottom: 0,
-//     elevation: 2,
-//   },
-
-//   buttonCloseModalColors: {
-//     borderRadius: 100,
-//     width: 100,
-//     padding: 13,
-//     marginBottom: 20,
-//     elevation: 2,
-
-//   },
-
-
-//   modalText: {
-//     marginBottom: 15,
-//     textAlign: 'center',
-//   },
-
-//   infoTextContainer: {
-//     marginTop: 20,
-//     marginBottom: 20,
-//     flex:1,
-//     height:windowHeight*.15
-//   },
-
   
-
-
-//   infoText1: {
-//     // marginBottom: 20,
-//     textAlign: 'center',
-//     fontWeight: 700,
-//     height:windowHeight*.03
-//   },
-
-
-//   saveOrClear: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     marginTop: 60,
-//     gap: 10,
-//     height:windowHeight*.05
-
-//   },
-
-//   clearOut: {
-//     backgroundColor: '#DADADA',
-//     padding: 10,
-//     borderRadius: 20,
-//     height: 35,
-
-//   },
-
-//   mapWeeks: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     borderColor: 'black',
-//     borderBottomWidth: 1,
-//     gap: 40,
-//     padding: 15,
-
-//   },
-
-//   mapWeeksInfo: {
-//     marginLeft: 10,
-//     gap: 3,
-//   },
-
-//   modalVisibleButton: {
-//     display: 'flex',
-//     padding: 40,
-//     gap: 10,
-//     marginBottom: 10,
-//     marginTop: 30,
-//   },
-
-//   modalVisibleButton1: {
-//     backgroundColor: '#CAD473',
-//     borderRadius: 20,
-//     padding: 15,
-//     alignItems: 'center'
-
-//   },
-
-//   modalVisibleButton2: {
-//     backgroundColor: '#D42500',
-//     borderRadius: 20,
-//     padding: 15,
-//     alignItems: 'center'
-
-//   },
-
-//   modalVisibleButton3: {
-//     backgroundColor: '#dadada',
-//     borderRadius: 20,
-//     padding:15,
-//     alignItems: 'center'
-
-//   },
-
-//   modalMap: {
-//     backgroundColor: '#EE81F0',
-//     borderRadius: 20,
-//     padding: 10,
-//     alignItems: 'center',
-//     gap: 20,
-//     shadowOpacity: 70,
-//     shadowRadius: 6,
-//     elevation: 5,
-//     maxHeight: 500,
-
-//   },
-
-//   deleteWeekButton : {
-//     backgroundColor: '#EE81F0',
-//     elevation: 2,
-//     justifyContent: 'center',
-//     paddingLeft:3,
-//     paddingRight: 3,
-//     borderRadius: 30,
-//     borderColor: 'black',
-//   },
-
-//   deleteWeekText: {
-//     color: 'black',
-//     textDecorationLine: 'underline',
-    
-
-//   },
-
-//   totalsMaped: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     gap: 10,
-//   },
-
-//   initialDate: {
-//     marginTop: 10,
-//     display: 'flex',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-
-//   importantText: {
-//     fontWeight: 700,
-//   },
-
-//   messageSaveWeek: {
-//     color: 'green',
-//     height:windowHeight*.03
-//   }
-
- 
-
-  
-
-
-  
-// });
