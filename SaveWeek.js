@@ -33,7 +33,7 @@ function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPi
 
   return (
     <SafeAreaView >
-    <Pressable style = {styles.clearOut} onPress={() => [setModalSave(true), setModalSaveOpen(true)]}><Text>Save Week</Text></Pressable>
+    <Pressable style = {styles.clearOut} onPress={() => [setModalSave(true), setModalSaveOpen(true)]}><Text>Finish and Save</Text></Pressable>
     <View style={styles.centeredView}>
       <Modal
         animationType="slide"

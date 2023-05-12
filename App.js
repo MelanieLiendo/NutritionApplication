@@ -618,9 +618,9 @@ export default function App() {
       </View>  
 
       <View style= {styles.saveOrClear}>
-        <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear out week</Text></Pressable>              
+        <Pressable style = {styles.clearOut} onPress={() => alert()}><Text>Clear week</Text></Pressable>              
         <SaveWeek  pickerDay = {pickerDay} setPickerDay= {setPickerDay} pickerMonth= {pickerMonth} setPickerMonth= {setPickerMonth} setMessageSaveWeek= {setMessageSaveWeek} arrWeeks={arrWeeks} setArrWeeks={setArrWeeks} countHealthy={countHealthy} countUnhealthy={countUnhealthy} setCountHealthy={setCountHealthy} setCountUnhealthy={setCountUnhealthy} clearWeek={clearWeek} _storeHistorical={_storeHistorical} setModalSaveOpen={setModalSaveOpen} setReducedHealthy={setReducedHealthy} setReducedMeals={setReducedMeals}/>
-        <Pressable style = {styles.clearOut} onPress={() => historic()}><Text>Historic weeks</Text></Pressable>
+        <Pressable style = {styles.clearOut} onPress={() => historic()}><Text>Statistics</Text></Pressable>
       </View>
 
           
