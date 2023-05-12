@@ -28,12 +28,25 @@ function SaveWeek({setModalSaveOpen, pickerDay, setPickerDay, pickerMonth, setPi
   }
 
 
+  const alertSave =(index) => {
+
+    Alert.alert(
+      'Have you finished the week?',
+      'This will save your current week in statistics and clear current week',
+
+      [
+      {text: 'I want to continue this week'},
+      {text: 'Clear and save to statistics', onPress :() => {setModalSave(true); setModalSaveOpen(true)}},      
+      ],
+      { cancelable: false }
+      )
+  }
 
 
 
   return (
     <SafeAreaView >
-    <Pressable style = {styles.clearOut} onPress={() => [setModalSave(true), setModalSaveOpen(true)]}><Text>Finish and Save</Text></Pressable>
+    <Pressable style = {styles.clearOut} onPress={() => alertSave()}><Text>Save</Text></Pressable>
     <View style={styles.centeredView}>
       <Modal
         animationType="slide"
